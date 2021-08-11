@@ -29,7 +29,9 @@ Here you can donate if you liked my project and you want to support me:
   
   
 
-#### If you have any questions or concerns, please contact [@stampixel](https://dsc.bio/stampy)
+#### If you have any questions or concerns, please contact [@stampixel](https://dsc.bio/stampy), here are my 30 day stats.
+
+<a href="https://www.blitzstars.com/player/com/XxStampyxX" class="bbc_url"><img src="https://www.blitzstars.com/sigs/1033914083" alt="" class="bbc_img" style="max-width: 1106px; height: auto;"></a>
 
 
  
