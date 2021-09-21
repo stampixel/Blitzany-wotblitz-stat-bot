@@ -19,7 +19,7 @@ Here you can donate if you liked my project and you want to support me:
 
 ## Usage
 
-  1. Find the bot through [this link](`https://discord.com/api/oauth2/authorize?client_id=869325417293680682&permissions=1174592&scope=bot`)
+  1. Find the bot through [this link](https://discord.com/api/oauth2/authorize?client_id=869325417293680682&permissions=1174592&scope=bot)
 
   2. Invite the bot to your desired server
 <img src="https://raw.githubusercontent.com/stampixel/Blitzany-wotblitz-stat-bot/main/img/2.png">
