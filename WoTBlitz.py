@@ -7,6 +7,7 @@ import datetime
 import asyncio
 
 client = commands.Bot(command_prefix=">")
+client.remove_command("help")
 
 
 async def status_task():
@@ -24,18 +25,18 @@ async def status_task():
 '''
 
 
-def get_account_id(player):
+def get_account_id(player, server):
     data = requests.get(
-        f"https://api.wotblitz.com/wotb/account/list/?application_id=95523cc25e231e510f678729e21a9e10&search={player}")
+        f"https://api.wotblitz.{server}/wotb/account/list/?application_id=95523cc25e231e510f678729e21a9e10&search={player}")
     json_data = json.loads(data.text)
     info = json_data['data']
     account_id = info[0]['account_id']
     return account_id
 
 
-def get_clan_id(account_id):
+def get_clan_id(account_id, server):
     data = requests.get(
-        f"https://api.wotblitz.com/wotb/clans/accountinfo/?application_id=95523cc25e231e510f678729e21a9e10&account_id={account_id}")
+        f"https://api.wotblitz.{server}/wotb/clans/accountinfo/?application_id=95523cc25e231e510f678729e21a9e10&account_id={account_id}")
     json_data = json.loads(data.text)
     total_data = json_data['data']
     player_id_category = total_data[f'{account_id}']
@@ -76,16 +77,20 @@ async def on_command_error(ctx, error):
 
 
 @client.command()
-async def stats(ctx, player=None):
+async def stats(ctx, player=None, *, server=None):
+    if server is None:
+        server = "com"
+    elif server == "na" or "Na" or "NA":
+        server = "com"
     if player is None:
         await ctx.send("Please input a player. (`!stats [PLAYER]`)")
     else:
 
         try:
-            account_id = get_account_id(player=player)
+            account_id = get_account_id(player=player, server=server)
 
             data = requests.get(
-                f"https://api.wotblitz.com/wotb/account/info/?application_id=95523cc25e231e510f678729e21a9e10&account_id={account_id}")
+                f"https://api.wotblitz.{server}/wotb/account/info/?application_id=95523cc25e231e510f678729e21a9e10&account_id={account_id}")
             json_data = json.loads(data.text)
 
             # json subcatagory scraping
@@ -124,16 +129,18 @@ async def stats(ctx, player=None):
             embed.add_field(name=f":clock1: Created At: `{account_creation_date.strftime('%Y-%m-%d %H:%M:%S')}`",
                             value='==================================', inline=False)
 
-            clan_id = get_clan_id(account_id=account_id)
+            clan_id = get_clan_id(account_id=account_id, server=server)
             if clan_id is None:
                 embed.add_field(name=':x: **ERROR**', value=f'┕`{player_nickname}` is either not in a clan or an '
                                                             f'error has occured. Please contact __**[stampixel]('
                                                             f'https://dsc.bio/stampy)**__ if you have any questions '
                                                             f'or concerns.', inline=False)
+                embed.set_footer(
+                    text=f"Server: {server} | ID Blitz Account: {account_id} | Last Battle: {player_last_battle.strftime('%Y-%m-%d %H:%M:%S')}")
 
             else:
                 data = requests.get(
-                    f"https://api.wotblitz.com/wotb/clans/info/?application_id=95523cc25e231e510f678729e21a9e10&clan_id={clan_id}")
+                    f"https://api.wotblitz.{server}/wotb/clans/info/?application_id=95523cc25e231e510f678729e21a9e10&clan_id={clan_id}")
                 json_data = json.loads(data.text)
 
                 total_data = json_data['data']
@@ -145,7 +152,7 @@ async def stats(ctx, player=None):
                 embed.add_field(name=':pencil: **Member Count**', value=f'┕`{member_count}`', inline=True)
 
                 embed.set_footer(
-                    text=f"ID Blitz Account: {account_id} | Last Battle: {player_last_battle.strftime('%Y-%m-%d %H:%M:%S')}")
+                    text=f"Server: {server} | ID Blitz Account: {account_id} | Last Battle: {player_last_battle.strftime('%Y-%m-%d %H:%M:%S')}")
 
             await ctx.send(embed=embed)
         except IndexError:
@@ -153,5 +160,3 @@ async def stats(ctx, player=None):
 
 
 client.run('TOKEN')
-
-
