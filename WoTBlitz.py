@@ -9,6 +9,9 @@ import asyncio
 client = commands.Bot(command_prefix=">")
 client.remove_command("help")
 
+login_dict = {
+}
+
 
 async def status_task():
     while True:
@@ -44,7 +47,6 @@ def get_clan_id(account_id, server):
         clan_id = None
     else:
         clan_id = player_id_category['clan_id']
-
     return clan_id
 
 
@@ -77,15 +79,65 @@ async def on_command_error(ctx, error):
 
 
 @client.command()
-async def stats(ctx, player=None, *, server=None):
-    if server is None:
-        server = "com"
-    elif server == "na" or "Na" or "NA":
-        server = "com"
-    if player is None:
-        await ctx.send("Please input a player. (`!stats [PLAYER]`)")
-    else:
+async def login(ctx, player=None, *, server=None):
+    try:
+        for key in login_dict:
+            if key == ctx.author.id:
+                await ctx.send("You are already logged in.")
+                break
+        login_dict[f'{ctx.author.id}'] = player, server
+        await ctx.send(f"In Game Name: {player} | Server: {server}")
+        print(login_dict)
+    except:
+        await ctx.send("Try: `>login [IGN] [SERVER]`")
 
+
+@client.command()
+async def logout(ctx):
+    try:
+        for key in login_dict:
+            if key == ctx.author.id:
+                del login_dict[f"{ctx.author.id}"]
+                break
+        await ctx.send("Successfully logged out")
+        print(login_dict)
+    except Exception:
+        await ctx.send("You need to first login before you can logout!")
+
+
+@client.command()
+async def stats(ctx, player=None, *, server=None):
+    if player is None and server is None:
+        try:
+            for key in login_dict:
+                if key == f"{ctx.author.id}":
+                    print(login_dict[key])
+                    player = login_dict[key][0]
+                    print(player)
+                    server = login_dict[key][1]
+                else:
+                    print(key)
+        except:
+            await ctx.send("Error has occured, please contact bot owner. stampixel")
+
+    if server is None:
+        await ctx.send("Please input a server")
+    else:
+        print(server)
+        if server == "eu" or server == "Eu" or server == "EU":
+            server = "eu"
+        elif server == "na" or server == "NA":
+            server = "com"
+        elif server == "ru" or server == "Ru" or server == "RU":
+            server = "ru"
+        elif server == "asia" or server == "Asia" or server == "ASIA":
+            server = "asia"
+        else:
+            await ctx.send("please input a valid server")
+
+    if player is None:
+        await ctx.send("Please input a player.")
+    else:
         try:
             account_id = get_account_id(player=player, server=server)
 
@@ -133,7 +185,7 @@ async def stats(ctx, player=None, *, server=None):
             if clan_id is None:
                 embed.add_field(name=':x: **ERROR**', value=f'┕`{player_nickname}` is either not in a clan or an '
                                                             f'error has occured. Please contact __**[stampixel]('
-                                                            f'https://dsc.bio/stampy)**__ if you have any questions '
+                                                            f'https://discords.com/bio/p/stampixel)**__ if you have any questions '
                                                             f'or concerns.', inline=False)
                 embed.set_footer(
                     text=f"Server: {server} | ID Blitz Account: {account_id} | Last Battle: {player_last_battle.strftime('%Y-%m-%d %H:%M:%S')}")
@@ -156,7 +208,7 @@ async def stats(ctx, player=None, *, server=None):
 
             await ctx.send(embed=embed)
         except IndexError:
-            await ctx.send(f"Player (`{player}`) not found.")
+            await ctx.send(f"Username `{player}` not found.")
 
 
 client.run('TOKEN')
